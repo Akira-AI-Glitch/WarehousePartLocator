@@ -4,8 +4,9 @@ const path = require("path");
 const os = require("os");
 const Database = require("better-sqlite3");
 
-const HOST = "0.0.0.0";
 const PORT = 3000;
+const SERVER_HOSTNAME = "localhost";
+
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,11 @@ const PORT = 3000;
 
 const appData =
   process.env.APPDATA ||
-  path.join(os.homedir(), "AppData", "Roaming");
+  path.join(
+    os.homedir(),
+    "AppData",
+    "Roaming"
+  );
 
 const databaseDirectory =
   path.join(
@@ -41,44 +46,181 @@ const db =
 
 db.pragma("journal_mode = WAL");
 
+
+/*
+|--------------------------------------------------------------------------
+| PARTS TABLE
+|--------------------------------------------------------------------------
+*/
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS parts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-
     partNumber TEXT NOT NULL DEFAULT '',
-
     customerName TEXT NOT NULL DEFAULT '',
-
     poNumber TEXT NOT NULL DEFAULT '',
-
     location TEXT NOT NULL DEFAULT '',
-
     quantity INTEGER NOT NULL DEFAULT 0,
-
     notes TEXT NOT NULL DEFAULT '',
-
     archived INTEGER NOT NULL DEFAULT 0,
-
     createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 `);
+
+
+/*
+|--------------------------------------------------------------------------
+| LEGEND TABLE
+|--------------------------------------------------------------------------
+*/
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS legend (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    abbreviation TEXT NOT NULL DEFAULT '',
+    meaning TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+
+/*
+|--------------------------------------------------------------------------
+| DEFAULT LEGEND
+|--------------------------------------------------------------------------
+*/
+
+const legendCount =
+  db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM legend
+  `).get().count;
+
+if (legendCount === 0) {
+
+  const insertLegend =
+    db.prepare(`
+      INSERT INTO legend (
+        abbreviation,
+        meaning,
+        description
+      )
+      VALUES (?, ?, ?)
+    `);
+
+  const defaultLegend = [
+    [
+      "TW",
+      "Trim Wall",
+      "Trim stored on the trim wall."
+    ],
+
+    [
+      "CR",
+      "Carpet Rack",
+      "Carpet stored on the carpet rack."
+    ],
+
+    [
+      "FPallet",
+      "Floor Pallet",
+      "Usually a pallet containing multiple orders that is stored somewhere on the warehouse floor."
+    ],
+
+    [
+      "TWShelf",
+      "Trim Wall Shelf",
+      "Material stored on a shelf at the trim wall."
+    ],
+
+    [
+      "Wall Corner",
+      "Wall Corner",
+      "Material stored at the corner or end of a warehouse wall."
+    ],
+
+    [
+      "A / B / C",
+      "Rack Section",
+      "The letter identifies the section of a warehouse rack location, such as 6A, 6B, or 6C."
+    ]
+  ];
+
+  const insertMany =
+    db.transaction(
+      (entries) => {
+
+        for (
+          const entry of entries
+        ) {
+
+          insertLegend.run(
+            entry[0],
+            entry[1],
+            entry[2]
+          );
+
+        }
+
+      }
+    );
+
+  insertMany(defaultLegend);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE SERVER DIRECTORY
+|--------------------------------------------------------------------------
+|
+| This directory contains:
+|
+| RELEASES
+| *.nupkg
+|
+|--------------------------------------------------------------------------
+*/
+
+const updateDirectory =
+  path.resolve(
+    __dirname,
+    "updates"
+  );
+
+
+/*
+|--------------------------------------------------------------------------
+| SERVER INFORMATION
+|--------------------------------------------------------------------------
+*/
 
 console.log("");
 console.log("==========================================");
 console.log(" Warehouse Part Locator Server");
 console.log("==========================================");
 console.log("");
+
 console.log("Database:");
 console.log(databasePath);
 console.log("");
+
+console.log("Update directory:");
+console.log(updateDirectory);
+console.log("");
+
 console.log("Server:");
 console.log(`http://localhost:${PORT}`);
 console.log("");
+
 console.log("Network:");
-console.log(`http://10.13.1.135:${PORT}`);
+console.log(`http://${SERVER_HOSTNAME}:${PORT}`);
 console.log("");
+
 console.log("Listening for warehouse computers...");
 console.log("");
+
 
 /*
 |--------------------------------------------------------------------------
@@ -99,7 +241,7 @@ function sendJSON(
     statusCode,
     {
       "Content-Type":
-        "application/json",
+        "application/json; charset=utf-8",
 
       "Access-Control-Allow-Origin":
         "*",
@@ -244,6 +386,7 @@ function getParts(query) {
   let archivedSQL =
     "archived = 0";
 
+
   if (
     archived === "archived"
   ) {
@@ -252,6 +395,7 @@ function getParts(query) {
       "archived = 1";
 
   }
+
 
   if (
     archived === "all"
@@ -262,8 +406,10 @@ function getParts(query) {
 
   }
 
+
   let orderSQL =
     "createdAt DESC";
+
 
   switch (sort) {
 
@@ -274,12 +420,14 @@ function getParts(query) {
 
       break;
 
+
     case "partAsc":
 
       orderSQL =
         "partNumber COLLATE NOCASE ASC";
 
       break;
+
 
     case "partDesc":
 
@@ -288,12 +436,14 @@ function getParts(query) {
 
       break;
 
+
     case "nameAsc":
 
       orderSQL =
         "customerName COLLATE NOCASE ASC";
 
       break;
+
 
     case "nameDesc":
 
@@ -302,12 +452,14 @@ function getParts(query) {
 
       break;
 
+
     case "locationAsc":
 
       orderSQL =
         "location COLLATE NOCASE ASC";
 
       break;
+
 
     case "locationDesc":
 
@@ -316,6 +468,7 @@ function getParts(query) {
 
       break;
 
+
     case "quantityAsc":
 
       orderSQL =
@@ -323,12 +476,14 @@ function getParts(query) {
 
       break;
 
+
     case "quantityDesc":
 
       orderSQL =
         "quantity DESC";
 
       break;
+
 
     case "newest":
 
@@ -341,9 +496,9 @@ function getParts(query) {
 
   }
 
+
   const statement =
     db.prepare(`
-
       SELECT
         id,
         partNumber,
@@ -354,40 +509,260 @@ function getParts(query) {
         notes,
         archived,
         createdAt
-
       FROM parts
-
       WHERE
-
         ${archivedSQL}
-
         AND (
-
           partNumber LIKE ?
-
           OR customerName LIKE ?
-
           OR poNumber LIKE ?
-
           OR location LIKE ?
-
           OR notes LIKE ?
-
         )
-
       ORDER BY ${orderSQL}
-
     `);
 
-  return statement.all(
 
+  return statement.all(
     searchValue,
     searchValue,
     searchValue,
     searchValue,
     searchValue
-
   );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GET LEGEND
+|--------------------------------------------------------------------------
+*/
+
+function getLegend() {
+
+  return db.prepare(`
+    SELECT
+      id,
+      abbreviation,
+      meaning,
+      description,
+      createdAt
+    FROM legend
+    ORDER BY abbreviation COLLATE NOCASE ASC
+  `).all();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SERVE UPDATE FILE
+|--------------------------------------------------------------------------
+*/
+
+function serveUpdateFile(
+  req,
+  res,
+  pathname
+) {
+
+  /*
+   * Only allow:
+   *
+   * /updates/win32/x64/RELEASES
+   * /updates/win32/x64/*.nupkg
+   *
+   */
+
+  const updatePrefix =
+    "/updates/";
+
+  if (
+    !pathname.startsWith(
+      updatePrefix
+    )
+  ) {
+
+    return false;
+
+  }
+
+
+  const relativePath =
+    pathname
+      .substring(
+        updatePrefix.length
+      )
+      .replace(
+        /^\/+/,
+        ""
+      );
+
+
+  /*
+   * Prevent directory traversal.
+   */
+
+  if (
+    relativePath.includes("..")
+  ) {
+
+    sendError(
+      res,
+      403,
+      "Access denied."
+    );
+
+    return true;
+
+  }
+
+
+  const filePath =
+    path.resolve(
+      updateDirectory,
+      relativePath
+    );
+
+
+  const updateRoot =
+    path.resolve(
+      updateDirectory
+    );
+
+
+  if (
+    !filePath.startsWith(
+      updateRoot + path.sep
+    )
+  ) {
+
+    sendError(
+      res,
+      403,
+      "Access denied."
+    );
+
+    return true;
+
+  }
+
+
+  if (
+    !fs.existsSync(filePath)
+  ) {
+
+    sendError(
+      res,
+      404,
+      "Update file not found."
+    );
+
+    return true;
+
+  }
+
+
+  const stats =
+    fs.statSync(filePath);
+
+
+  if (
+    !stats.isFile()
+  ) {
+
+    sendError(
+      res,
+      404,
+      "Update file not found."
+    );
+
+    return true;
+
+  }
+
+
+  if (
+    req.method !== "GET" &&
+    req.method !== "HEAD"
+  ) {
+
+    sendError(
+      res,
+      405,
+      "Method not allowed."
+    );
+
+    return true;
+
+  }
+
+
+  const extension =
+    path.extname(
+      filePath
+    ).toLowerCase();
+
+
+  let contentType =
+    "application/octet-stream";
+
+
+  if (
+    path.basename(filePath) ===
+    "RELEASES"
+  ) {
+
+    contentType =
+      "text/plain; charset=utf-8";
+
+  } else if (
+    extension === ".nupkg"
+  ) {
+
+    contentType =
+      "application/octet-stream";
+
+  }
+
+
+  res.writeHead(
+    200,
+    {
+      "Content-Type":
+        contentType,
+
+      "Content-Length":
+        stats.size,
+
+      "Access-Control-Allow-Origin":
+        "*",
+
+      "Cache-Control":
+        "no-cache"
+    }
+  );
+
+
+  if (
+    req.method === "HEAD"
+  ) {
+
+    res.end();
+
+    return true;
+
+  }
+
+
+  fs.createReadStream(
+    filePath
+  ).pipe(res);
+
+
+  return true;
 
 }
 
@@ -435,14 +810,39 @@ const server =
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | URL
+        |--------------------------------------------------------------------------
+        */
+
         const url =
           new URL(
             req.url,
-            `http://${req.headers.host}`
+            `http://${req.headers.host || "localhost"}`
           );
 
         const pathname =
           url.pathname;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE FILES
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+          serveUpdateFile(
+            req,
+            res,
+            pathname
+          )
+        ) {
+
+          return;
+
+        }
 
 
         /*
@@ -493,6 +893,7 @@ const server =
               )
             );
 
+
           sendJSON(
             res,
             200,
@@ -518,9 +919,9 @@ const server =
           const part =
             await readBody(req);
 
+
           const statement =
             db.prepare(`
-
               INSERT INTO parts (
                 partNumber,
                 customerName,
@@ -529,27 +930,37 @@ const server =
                 quantity,
                 notes
               )
-
               VALUES (?, ?, ?, ?, ?, ?)
-
             `);
+
 
           const result =
             statement.run(
+              String(
+                part.partNumber ?? ""
+              ).trim(),
 
-              part.partNumber ?? "",
+              String(
+                part.customerName ?? ""
+              ).trim(),
 
-              part.customerName ?? "",
+              String(
+                part.poNumber ?? ""
+              ).trim(),
 
-              part.poNumber ?? "",
+              String(
+                part.location ?? ""
+              ).trim(),
 
-              part.location ?? "",
+              Number(
+                part.quantity
+              ) || 0,
 
-              Number(part.quantity) || 0,
-
-              part.notes ?? ""
-
+              String(
+                part.notes ?? ""
+              ).trim()
             );
+
 
           sendJSON(
             res,
@@ -569,6 +980,248 @@ const server =
 
         /*
         |--------------------------------------------------------------------------
+        | GET LEGEND
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+          req.method === "GET" &&
+          pathname === "/legend"
+        ) {
+
+          const legend =
+            getLegend();
+
+
+          sendJSON(
+            res,
+            200,
+            {
+              success: true,
+              legend
+            }
+          );
+
+          return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADD LEGEND ENTRY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+          req.method === "POST" &&
+          pathname === "/legend"
+        ) {
+
+          const entry =
+            await readBody(req);
+
+
+          const abbreviation =
+            String(
+              entry.abbreviation || ""
+            ).trim();
+
+
+          const meaning =
+            String(
+              entry.meaning || ""
+            ).trim();
+
+
+          const description =
+            String(
+              entry.description || ""
+            ).trim();
+
+
+          if (
+            !abbreviation ||
+            !meaning
+          ) {
+
+            sendError(
+              res,
+              400,
+              "Abbreviation and meaning are required."
+            );
+
+            return;
+
+          }
+
+
+          const result =
+            db.prepare(`
+              INSERT INTO legend (
+                abbreviation,
+                meaning,
+                description
+              )
+              VALUES (?, ?, ?)
+            `).run(
+              abbreviation,
+              meaning,
+              description
+            );
+
+
+          sendJSON(
+            res,
+            200,
+            {
+              success: true,
+
+              id:
+                result.lastInsertRowid
+            }
+          );
+
+          return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LEGEND ID ROUTE
+        |--------------------------------------------------------------------------
+        */
+
+        const legendMatch =
+          pathname.match(
+            /^\/legend\/(\d+)$/
+          );
+
+
+        if (
+          legendMatch
+        ) {
+
+          const id =
+            Number(
+              legendMatch[1]
+            );
+
+
+          /*
+          |--------------------------------------------------------------------------
+          | UPDATE LEGEND
+          |--------------------------------------------------------------------------
+          */
+
+          if (
+            req.method === "PUT"
+          ) {
+
+            const entry =
+              await readBody(req);
+
+
+            const abbreviation =
+              String(
+                entry.abbreviation || ""
+              ).trim();
+
+
+            const meaning =
+              String(
+                entry.meaning || ""
+              ).trim();
+
+
+            const description =
+              String(
+                entry.description || ""
+              ).trim();
+
+
+            if (
+              !abbreviation ||
+              !meaning
+            ) {
+
+              sendError(
+                res,
+                400,
+                "Abbreviation and meaning are required."
+              );
+
+              return;
+
+            }
+
+
+            const result =
+              db.prepare(`
+                UPDATE legend
+                SET
+                  abbreviation = ?,
+                  meaning = ?,
+                  description = ?
+                WHERE id = ?
+              `).run(
+                abbreviation,
+                meaning,
+                description,
+                id
+              );
+
+
+            sendJSON(
+              res,
+              200,
+              {
+                success:
+                  result.changes > 0
+              }
+            );
+
+            return;
+
+          }
+
+
+          /*
+          |--------------------------------------------------------------------------
+          | DELETE LEGEND
+          |--------------------------------------------------------------------------
+          */
+
+          if (
+            req.method === "DELETE"
+          ) {
+
+            const result =
+              db.prepare(`
+                DELETE FROM legend
+                WHERE id = ?
+              `).run(id);
+
+
+            sendJSON(
+              res,
+              200,
+              {
+                success:
+                  result.changes > 0
+              }
+            );
+
+            return;
+
+          }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | PART ID ROUTES
         |--------------------------------------------------------------------------
         */
@@ -578,10 +1231,15 @@ const server =
             /^\/parts\/(\d+)(?:\/(archive|restore))?$/
           );
 
-        if (match) {
+
+        if (
+          match
+        ) {
 
           const id =
-            Number(match[1]);
+            Number(
+              match[1]
+            );
 
           const action =
             match[2];
@@ -600,14 +1258,11 @@ const server =
 
             const result =
               db.prepare(`
-
                 UPDATE parts
-
                 SET archived = 1
-
                 WHERE id = ?
-
               `).run(id);
+
 
             sendJSON(
               res,
@@ -636,14 +1291,11 @@ const server =
 
             const result =
               db.prepare(`
-
                 UPDATE parts
-
                 SET archived = 0
-
                 WHERE id = ?
-
               `).run(id);
+
 
             sendJSON(
               res,
@@ -672,12 +1324,10 @@ const server =
 
             const result =
               db.prepare(`
-
                 DELETE FROM parts
-
                 WHERE id = ?
-
               `).run(id);
+
 
             sendJSON(
               res,
@@ -695,7 +1345,7 @@ const server =
 
           /*
           |--------------------------------------------------------------------------
-          | UPDATE
+          | UPDATE PART
           |--------------------------------------------------------------------------
           */
 
@@ -707,11 +1357,10 @@ const server =
             const part =
               await readBody(req);
 
+
             const result =
               db.prepare(`
-
                 UPDATE parts
-
                 SET
                   partNumber = ?,
                   customerName = ?,
@@ -719,26 +1368,37 @@ const server =
                   location = ?,
                   quantity = ?,
                   notes = ?
-
                 WHERE id = ?
-
               `).run(
 
-                part.partNumber ?? "",
+                String(
+                  part.partNumber ?? ""
+                ).trim(),
 
-                part.customerName ?? "",
+                String(
+                  part.customerName ?? ""
+                ).trim(),
 
-                part.poNumber ?? "",
+                String(
+                  part.poNumber ?? ""
+                ).trim(),
 
-                part.location ?? "",
+                String(
+                  part.location ?? ""
+                ).trim(),
 
-                Number(part.quantity) || 0,
+                Number(
+                  part.quantity
+                ) || 0,
 
-                part.notes ?? "",
+                String(
+                  part.notes ?? ""
+                ).trim(),
 
                 id
 
               );
+
 
             sendJSON(
               res,
@@ -768,6 +1428,7 @@ const server =
           "Not found."
         );
 
+
       } catch (error) {
 
         console.error(
@@ -775,12 +1436,19 @@ const server =
           error
         );
 
-        sendError(
-          res,
-          500,
-          error.message ||
-            "Internal server error."
-        );
+
+        if (
+          !res.headersSent
+        ) {
+
+          sendError(
+            res,
+            500,
+            error.message ||
+              "Internal server error."
+          );
+
+        }
 
       }
 
@@ -796,11 +1464,10 @@ const server =
 
 server.listen(
   PORT,
-  HOST,
   () => {
 
     console.log(
-      `Server listening on port ${PORT}`
+      `Server listening on ${SERVER_HOSTNAME}:${PORT}`
     );
 
   }
@@ -813,23 +1480,43 @@ server.listen(
 |--------------------------------------------------------------------------
 */
 
-process.on(
-  "SIGINT",
-  () => {
+function shutdown() {
 
-    console.log(
-      "\nShutting down..."
-    );
+  console.log(
+    "\nShutting down..."
+  );
+
+  try {
 
     db.close();
 
-    server.close(
-      () => {
+  } catch (error) {
 
-        process.exit(0);
-
-      }
+    console.error(
+      "Database close error:",
+      error
     );
 
   }
+
+
+  server.close(
+    () => {
+
+      process.exit(0);
+
+    }
+  );
+
+}
+
+
+process.on(
+  "SIGINT",
+  shutdown
+);
+
+process.on(
+  "SIGTERM",
+  shutdown
 );

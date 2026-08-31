@@ -1,3 +1,4 @@
+
 import {
   app,
   BrowserWindow,
@@ -5,20 +6,99 @@ import {
 } from "electron";
 
 import path from "node:path";
+import fs from "node:fs";
 
 import started from "electron-squirrel-startup";
 
-const SERVER_URL = "http://10.13.1.135:3000";
+import {
+  updateElectronApp,
+  UpdateSourceType
+} from "update-electron-app";
+
+
+const DEFAULT_SERVER_URL =
+  "http://localhost:3000";
+
+let serverUrl = DEFAULT_SERVER_URL;
+
+function getServerSettingsPath() {
+  return path.join(app.getPath("userData"), "server-settings.json");
+}
+
+function loadServerUrl() {
+  try {
+    const settings = JSON.parse(fs.readFileSync(getServerSettingsPath(), "utf8"));
+    if (typeof settings.serverUrl === "string" && settings.serverUrl) {
+      serverUrl = settings.serverUrl;
+    }
+  } catch {
+    // First launch (or an unreadable settings file): use the default server.
+  }
+}
+
+function normalizeServerUrl(value) {
+  const url = new URL(String(value).trim());
+  if (!/^https?:$/.test(url.protocol)) {
+    throw new Error("Use a full HTTP or HTTPS server address.");
+  }
+  return url.toString().replace(/\/$/, "");
+}
 
 
 /*
 |--------------------------------------------------------------------------
-| Squirrel
+| SQUIRREL
 |--------------------------------------------------------------------------
 */
 
 if (started) {
+
   app.quit();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| AUTOMATIC UPDATES
+|--------------------------------------------------------------------------
+*/
+
+if (!app.isPackaged) {
+
+  console.log(
+    "Automatic updates disabled while running in development mode."
+  );
+
+} else {
+
+  console.log(
+    "Automatic updates enabled."
+  );
+
+  updateElectronApp({
+
+    updateSource: {
+
+      type:
+        UpdateSourceType.ElectronPublicUpdateService,
+
+      repo:
+        "Akira-AI-Glitch/WarehousePartLocator"
+
+    },
+
+    updateInterval:
+      "1 minute",
+
+    notifyUser:
+      true,
+
+    logger:
+      console
+
+  });
+
 }
 
 
@@ -32,36 +112,54 @@ async function serverRequest(
   endpoint,
   options = {}
 ) {
-  const response = await fetch(
-    `${SERVER_URL}${endpoint}`,
-    {
-      ...options,
 
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
+  const response =
+    await fetch(
+      serverUrl + endpoint,
+      {
+        ...options,
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          ...(options.headers || {})
+        }
       }
-    }
-  );
+    );
+
 
   let data;
 
+
   try {
-    data = await response.json();
+
+    data =
+      await response.json();
+
   } catch {
+
     throw new Error(
-      `Server returned invalid JSON. HTTP ${response.status}`
+      "Server returned invalid JSON. HTTP " +
+      response.status
     );
+
   }
+
 
   if (!response.ok) {
+
     throw new Error(
       data.error ||
-      `Server returned HTTP ${response.status}`
+      "Server returned HTTP " +
+      response.status
     );
+
   }
 
+
   return data;
+
 }
 
 
@@ -76,24 +174,31 @@ const createWindow = () => {
   const mainWindow =
     new BrowserWindow({
 
-      width: 1200,
+      width:
+        1200,
 
-      height: 750,
+      height:
+        750,
 
-      minWidth: 900,
+      minWidth:
+        900,
 
-      minHeight: 600,
+      minHeight:
+        600,
 
       webPreferences: {
 
-        preload: path.join(
-          __dirname,
-          "preload.js"
-        ),
+        preload:
+          path.join(
+            __dirname,
+            "preload.js"
+          ),
 
-        contextIsolation: true,
+        contextIsolation:
+          true,
 
-        nodeIntegration: false
+        nodeIntegration:
+          false
 
       }
 
@@ -116,7 +221,9 @@ const createWindow = () => {
 
         __dirname,
 
-        `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
+        "../renderer/" +
+        MAIN_WINDOW_VITE_NAME +
+        "/index.html"
 
       )
 
@@ -125,6 +232,39 @@ const createWindow = () => {
   }
 
 };
+
+
+/*
+|--------------------------------------------------------------------------
+| APPLICATION VERSION
+|--------------------------------------------------------------------------
+*/
+
+ipcMain.handle(
+  "get-app-version",
+  () => {
+
+    return app.getVersion();
+
+  }
+);
+
+ipcMain.handle("get-server-url", () => serverUrl);
+
+ipcMain.handle("set-server-url", async (_event, value) => {
+  const nextUrl = normalizeServerUrl(value);
+  const previousUrl = serverUrl;
+  serverUrl = nextUrl;
+
+  try {
+    await serverRequest("/");
+    fs.writeFileSync(getServerSettingsPath(), JSON.stringify({ serverUrl }, null, 2));
+    return serverUrl;
+  } catch (error) {
+    serverUrl = previousUrl;
+    throw new Error(`Could not connect to ${nextUrl}: ${error.message}`);
+  }
+});
 
 
 /*
@@ -138,30 +278,39 @@ ipcMain.handle(
   async (_event, part) => {
 
     return await serverRequest(
+
       "/parts",
+
       {
-        method: "POST",
 
-        body: JSON.stringify({
-          partNumber:
-            part.partNumber ?? "",
+        method:
+          "POST",
 
-          customerName:
-            part.customerName ?? "",
+        body:
+          JSON.stringify({
 
-          poNumber:
-            part.poNumber ?? "",
+            partNumber:
+              part.partNumber ?? "",
 
-          location:
-            part.location ?? "",
+            customerName:
+              part.customerName ?? "",
 
-          quantity:
-            Number(part.quantity) || 0,
+            poNumber:
+              part.poNumber ?? "",
 
-          notes:
-            part.notes ?? ""
-        })
+            location:
+              part.location ?? "",
+
+            quantity:
+              Number(part.quantity) || 0,
+
+            notes:
+              part.notes ?? ""
+
+          })
+
       }
+
     );
 
   }
@@ -181,26 +330,37 @@ ipcMain.handle(
     const params =
       new URLSearchParams();
 
+
     params.set(
       "search",
       options.search ?? ""
     );
+
 
     params.set(
       "sort",
       options.sort ?? "newest"
     );
 
+
     params.set(
       "archived",
       options.archived ?? "active"
     );
 
+
     return await serverRequest(
-      `/parts?${params.toString()}`,
+
+      "/parts?" +
+      params.toString(),
+
       {
-        method: "GET"
+
+        method:
+          "GET"
+
       }
+
     );
 
   }
@@ -228,31 +388,42 @@ ipcMain.handle(
 
     }
 
+
     return await serverRequest(
-      `/parts/${part.id}`,
+
+      "/parts/" +
+      part.id,
+
       {
-        method: "PUT",
 
-        body: JSON.stringify({
-          partNumber:
-            part.partNumber ?? "",
+        method:
+          "PUT",
 
-          customerName:
-            part.customerName ?? "",
+        body:
+          JSON.stringify({
 
-          poNumber:
-            part.poNumber ?? "",
+            partNumber:
+              part.partNumber ?? "",
 
-          location:
-            part.location ?? "",
+            customerName:
+              part.customerName ?? "",
 
-          quantity:
-            Number(part.quantity) || 0,
+            poNumber:
+              part.poNumber ?? "",
 
-          notes:
-            part.notes ?? ""
-        })
+            location:
+              part.location ?? "",
+
+            quantity:
+              Number(part.quantity) || 0,
+
+            notes:
+              part.notes ?? ""
+
+          })
+
       }
+
     );
 
   }
@@ -270,10 +441,18 @@ ipcMain.handle(
   async (_event, id) => {
 
     return await serverRequest(
-      `/parts/${id}/archive`,
+
+      "/parts/" +
+      id +
+      "/archive",
+
       {
-        method: "PATCH"
+
+        method:
+          "PATCH"
+
       }
+
     );
 
   }
@@ -291,10 +470,18 @@ ipcMain.handle(
   async (_event, id) => {
 
     return await serverRequest(
-      `/parts/${id}/restore`,
+
+      "/parts/" +
+      id +
+      "/restore",
+
       {
-        method: "PATCH"
+
+        method:
+          "PATCH"
+
       }
+
     );
 
   }
@@ -312,13 +499,40 @@ ipcMain.handle(
   async (_event, id) => {
 
     return await serverRequest(
-      `/parts/${id}`,
+
+      "/parts/" +
+      id,
+
       {
-        method: "DELETE"
+
+        method:
+          "DELETE"
+
       }
+
     );
 
   }
+);
+
+ipcMain.handle("get-legend", () => serverRequest("/legend"));
+
+ipcMain.handle("create-legend", (_event, entry) =>
+  serverRequest("/legend", {
+    method: "POST",
+    body: JSON.stringify(entry)
+  })
+);
+
+ipcMain.handle("update-legend", (_event, entry) =>
+  serverRequest(`/legend/${entry.id}`, {
+    method: "PUT",
+    body: JSON.stringify(entry)
+  })
+);
+
+ipcMain.handle("delete-legend", (_event, id) =>
+  serverRequest(`/legend/${id}`, { method: "DELETE" })
 );
 
 
@@ -331,12 +545,15 @@ ipcMain.handle(
 app.whenReady().then(
   async () => {
 
+    loadServerUrl();
+
     try {
 
       const server =
         await serverRequest(
           "/"
         );
+
 
       console.log(
         "Warehouse server connected:",
@@ -351,6 +568,7 @@ app.whenReady().then(
       );
 
     }
+
 
     createWindow();
 

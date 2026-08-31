@@ -8,6 +8,28 @@ contextBridge.exposeInMainWorld(
   "api",
   {
 
+    /*
+    |--------------------------------------------------------------------------
+    | APPLICATION VERSION
+    |--------------------------------------------------------------------------
+    */
+
+    getAppVersion: () =>
+      ipcRenderer.invoke(
+        "get-app-version"
+      ),
+
+    getServerUrl: () => ipcRenderer.invoke("get-server-url"),
+
+    setServerUrl: (url) => ipcRenderer.invoke("set-server-url", url),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVENTORY
+    |--------------------------------------------------------------------------
+    */
+
     addPart: (part) =>
       ipcRenderer.invoke(
         "add-part",
@@ -47,7 +69,15 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.invoke(
         "delete-part",
         id
-      )
+      ),
+
+    getLegend: () => ipcRenderer.invoke("get-legend"),
+
+    createLegend: (entry) => ipcRenderer.invoke("create-legend", entry),
+
+    updateLegend: (entry) => ipcRenderer.invoke("update-legend", entry),
+
+    deleteLegend: (id) => ipcRenderer.invoke("delete-legend", id)
 
   }
 );

@@ -1,10 +1,6 @@
 module.exports = {
   packagerConfig: {
-    asar: true,
-
-    ignore: [
-      /node_modules\/(?!(better-sqlite3)\/)/
-    ]
+    asar: true
   },
 
   rebuildConfig: {
@@ -35,7 +31,7 @@ module.exports = {
           owner: "Akira-AI-Glitch",
           name: "WarehousePartLocator"
         },
-        draft: true
+        draft: false
       }
     }
   ],

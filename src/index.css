@@ -11,9 +11,18 @@ body,
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
     background: #f4f6f8;
     color: #1f2937;
+
     overflow-x: hidden;
 }
 
@@ -43,6 +52,8 @@ button:disabled {
 
 .app {
     min-height: 100vh;
+
+    background: linear-gradient(180deg, #f8fafc 0, #f1f5f9 100%);
 }
 
 
@@ -53,26 +64,33 @@ button:disabled {
 .header {
     width: 100%;
     min-height: 115px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 28px;
+
+    padding: 16px clamp(20px, 3vw, 42px);
+
     background: #ffffff;
-    border-bottom: 1px solid #dfe3e8;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .header-brand {
     display: flex;
     align-items: center;
     gap: 22px;
+
     min-width: 0;
 }
 
 .company-logo {
     width: 220px;
     height: auto;
+
     display: block;
     flex-shrink: 0;
+
     cursor: pointer;
 }
 
@@ -82,30 +100,58 @@ button:disabled {
 
 .header-title h1 {
     margin: 0;
-    font-size: 27px;
+
+    font-size: clamp(22px, 2vw, 28px);
     line-height: 1.2;
     font-weight: 700;
+
     white-space: nowrap;
 }
 
 .header-title p {
     margin: 6px 0 0;
+
     color: #6b7280;
     font-size: 14px;
+
+    white-space: nowrap;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex-shrink: 0;
+}
+
+.credits-button,
+.legend-button {
+    padding: 9px 14px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+
     white-space: nowrap;
 }
 
 .credits-button {
-    flex-shrink: 0;
     background: #e9edf2;
     color: #374151;
-    padding: 10px 17px;
-    border-radius: 7px;
-    font-size: 14px;
 }
 
 .credits-button:hover {
     background: #dce2e8;
+}
+
+.legend-button {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.legend-button:hover {
+    background: #1d4ed8;
 }
 
 
@@ -114,8 +160,10 @@ button:disabled {
 ========================================================= */
 
 .main {
-    width: 100%;
-    padding: 24px 28px;
+    width: min(1500px, 100%);
+
+    margin: 0 auto;
+    padding: 28px clamp(20px, 3vw, 42px) 42px;
 }
 
 
@@ -126,9 +174,12 @@ button:disabled {
 .success-message,
 .error-message {
     width: 100%;
+
     padding: 11px 15px;
     margin-bottom: 17px;
+
     border-radius: 7px;
+
     font-size: 14px;
     font-weight: 600;
 }
@@ -136,12 +187,14 @@ button:disabled {
 .success-message {
     background: #dcfce7;
     color: #166534;
+
     border: 1px solid #bbf7d0;
 }
 
 .error-message {
     background: #fee2e2;
     color: #991b1b;
+
     border: 1px solid #fecaca;
 }
 
@@ -152,9 +205,18 @@ button:disabled {
 
 .controls {
     width: 100%;
+
     display: grid;
-    grid-template-columns: minmax(260px, 1fr) 185px 165px auto;
-    gap: 10px;
+
+    /*
+     * Search gets the remaining space.
+     * The buttons stay together instead of being pushed
+     * unnecessarily far to the right.
+     */
+    grid-template-columns: minmax(240px, 1fr) 180px 150px auto;
+
+    gap: 12px;
+
     margin-bottom: 21px;
 }
 
@@ -162,16 +224,26 @@ button:disabled {
     min-width: 0;
 }
 
+.control-buttons {
+    display: flex;
+    gap: 8px;
+}
+
 input,
 select,
 textarea {
     width: 100%;
-    border: 1px solid #cfd5dc;
-    border-radius: 7px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
     background: #ffffff;
-    padding: 11px 13px;
+
+    padding: 10px 12px;
+
     font-size: 14px;
     color: #1f2937;
+
     outline: none;
 }
 
@@ -179,7 +251,10 @@ input:focus,
 select:focus,
 textarea:focus {
     border-color: #4f7cff;
-    box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.12);
+
+    box-shadow:
+        0 0 0 2px
+        rgba(79, 124, 255, 0.12);
 }
 
 .controls select {
@@ -189,13 +264,54 @@ textarea:focus {
 .secondary-button {
     background: #e9edf2;
     color: #374151;
-    padding: 10px 17px;
+
+    padding: 10px 16px;
+
     border-radius: 7px;
+
     white-space: nowrap;
 }
 
 .secondary-button:hover {
     background: #dce2e8;
+}
+
+.add-control-button {
+    background: #2563eb;
+    color: #ffffff;
+
+    padding: 10px 16px;
+
+    border-radius: 7px;
+
+    white-space: nowrap;
+}
+
+.add-control-button:hover {
+    background: #1d4ed8;
+}
+
+.add-button {
+    background: #2563eb;
+    color: #ffffff;
+
+    padding: 10px 16px;
+
+    border-radius: 8px;
+
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.24);
+}
+
+.add-button:hover {
+    background: #1d4ed8;
+}
+
+.panel-description {
+    margin: 0;
+
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 
@@ -205,10 +321,6 @@ textarea:focus {
 
 .content {
     width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 20px;
-    align-items: start;
 }
 
 
@@ -217,28 +329,40 @@ textarea:focus {
 ========================================================= */
 
 .inventory {
+    width: 100%;
     min-width: 0;
+
     background: #ffffff;
-    border: 1px solid #dfe3e8;
-    border-radius: 9px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+
     overflow: hidden;
 }
 
 .section-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
-    padding: 17px 20px;
-    border-bottom: 1px solid #e5e7eb;
+
+    padding: 18px 22px;
+
+    border-bottom: 1px solid #e2e8f0;
+    background: #fbfdff;
 }
 
 .section-header h2 {
     margin: 0;
+
     font-size: 21px;
 }
 
 .section-header span {
     color: #6b7280;
+
     font-size: 13px;
 }
 
@@ -249,13 +373,17 @@ textarea:focus {
 
 .table-container {
     width: 100%;
-    overflow: hidden;
+
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
+
     border-collapse: collapse;
+
     table-layout: fixed;
+
     font-size: 13px;
 }
 
@@ -265,24 +393,33 @@ thead {
 
 th {
     text-align: left;
+
     color: #5f6773;
+
     font-size: 12px;
     font-weight: 700;
-    padding: 12px 9px;
+
+    padding: 13px 12px;
+
     border-bottom: 1px solid #dfe3e8;
+
     white-space: nowrap;
 }
 
 td {
-    padding: 12px 9px;
+    padding: 14px 12px;
+
     border-bottom: 1px solid #edf0f2;
+
     vertical-align: middle;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
 tbody tr:hover {
-    background: #f8fafc;
+    background: #f8fbff;
 }
 
 .archived-row {
@@ -292,59 +429,145 @@ tbody tr:hover {
 
 /* =========================================================
    TABLE COLUMN SIZING
+   8 COLUMNS
 ========================================================= */
 
+/*
+   Customer Name
+*/
 th:nth-child(1),
 td:nth-child(1) {
-    width: 11%;
+    width: 13%;
 }
 
+/*
+   PO Number
+*/
 th:nth-child(2),
 td:nth-child(2) {
-    width: 14%;
-}
-
-th:nth-child(3),
-td:nth-child(3) {
-    width: 10%;
-}
-
-th:nth-child(4),
-td:nth-child(4) {
-    width: 8%;
-}
-
-th:nth-child(5),
-td:nth-child(5) {
-    width: 7%;
-    text-align: center;
-}
-
-th:nth-child(6),
-td:nth-child(6) {
-    width: 19%;
-}
-
-th:nth-child(7),
-td:nth-child(7) {
     width: 9%;
 }
 
+/*
+   Location
+*/
+th:nth-child(3),
+td:nth-child(3) {
+    width: 9%;
+}
+
+/*
+   Quantity
+*/
+th:nth-child(4),
+td:nth-child(4) {
+    width: 7%;
+
+    text-align: center;
+}
+
+/*
+   Notes
+*/
+th:nth-child(5),
+td:nth-child(5) {
+    width: 29%;
+}
+
+/*
+   Date Added
+*/
+th:nth-child(6),
+td:nth-child(6) {
+    width: 13%;
+}
+
+/*
+   Status
+*/
+th:nth-child(7),
+td:nth-child(7) {
+    width: 7%;
+}
+
+/*
+   Actions
+*/
 th:nth-child(8),
 td:nth-child(8) {
-    width: 22%;
+    width: 13%;
 }
 
 
 /* =========================================================
-   DATE / TIME
+   NOTES
 ========================================================= */
 
-td:nth-child(6) {
-    white-space: nowrap;
+.notes-cell {
+    white-space: pre-wrap;
+
+    line-height: 1.45;
+
+    vertical-align: top;
+
+    color: #4b5563;
+
     overflow: visible;
+
     text-overflow: clip;
-    font-size: 12px;
+
+    word-break: break-word;
+}
+
+.notes-cell span {
+    display: block;
+
+    /*
+     * Full notes are displayed.
+     * No max-height.
+     */
+    max-height: none;
+
+    /*
+     * Never hide the rest of the note.
+     */
+    overflow: visible;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+    text-overflow: clip;
+
+    cursor: help;
+}
+
+
+/* =========================================================
+   QUANTITY
+========================================================= */
+
+.quantity-cell {
+    text-align: center;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.date-cell {
+    white-space: normal;
+
+    overflow: visible;
+
+    text-overflow: clip;
+
+    font-size: 11px;
+
+    line-height: 1.35;
 }
 
 
@@ -354,10 +577,14 @@ td:nth-child(6) {
 
 .status {
     display: inline-block;
-    padding: 5px 8px;
+
+    padding: 5px 7px;
+
     border-radius: 20px;
-    font-size: 11px;
+
+    font-size: 10px;
     font-weight: 700;
+
     white-space: nowrap;
 }
 
@@ -378,17 +605,26 @@ td:nth-child(6) {
 
 .actions {
     display: flex;
+
     align-items: center;
-    gap: 6px;
+
+    justify-content: flex-start;
+
+    gap: 5px;
+
     white-space: nowrap;
 }
 
 .small-button {
     background: #e9edf2;
     color: #374151;
-    padding: 7px 9px;
+
+    padding: 7px 10px;
+
     border-radius: 6px;
-    font-size: 12px;
+
+    font-size: 11px;
+
     white-space: nowrap;
 }
 
@@ -399,9 +635,13 @@ td:nth-child(6) {
 .danger-button {
     background: #fee2e2;
     color: #991b1b;
-    padding: 7px 9px;
+
+    padding: 7px 10px;
+
     border-radius: 6px;
-    font-size: 12px;
+
+    font-size: 11px;
+
     white-space: nowrap;
 }
 
@@ -411,79 +651,105 @@ td:nth-child(6) {
 
 
 /* =========================================================
-   ADD PANEL
-========================================================= */
-
-.add-panel {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #dfe3e8;
-    border-radius: 9px;
-    padding: 21px;
-}
-
-.add-panel h2 {
-    margin: 0;
-    font-size: 21px;
-}
-
-.panel-description {
-    margin: 6px 0 19px;
-    color: #6b7280;
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-.add-panel label {
-    display: block;
-    margin-bottom: 14px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.add-panel input,
-.add-panel textarea {
-    margin-top: 6px;
-}
-
-.add-panel textarea {
-    min-height: 85px;
-    resize: vertical;
-}
-
-.add-button {
-    width: 100%;
-    padding: 12px;
-    background: #2563eb;
-    color: #ffffff;
-    border-radius: 7px;
-    font-size: 14px;
-}
-
-.add-button:hover {
-    background: #1d4ed8;
-}
-
-
-/* =========================================================
    LOADING / EMPTY
 ========================================================= */
 
 .message {
     min-height: 190px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
     gap: 6px;
+
     padding: 30px;
+
     color: #6b7280;
+
     text-align: center;
 }
 
 .message strong {
     color: #374151;
+
     font-size: 16px;
+}
+
+
+/* =========================================================
+   ADD PART MODAL
+========================================================= */
+
+.add-part-modal {
+    width: 520px;
+
+    max-width: 90vw;
+}
+
+.add-part-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+.add-part-header h2 {
+    margin: 0 0 6px;
+}
+
+.add-part-header .panel-description {
+    margin: 0;
+}
+
+.modal-close-button {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    background: #e9edf2;
+    color: #374151;
+
+    font-size: 24px;
+
+    line-height: 1;
+}
+
+.modal-close-button:hover {
+    background: #dce2e8;
+}
+
+.add-part-modal label {
+    display: block;
+
+    margin-bottom: 14px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.add-part-modal input,
+.add-part-modal textarea {
+    margin-top: 6px;
+}
+
+.add-part-modal .notes-input {
+    min-height: 100px;
+
+    resize: vertical;
+
+    line-height: 1.45;
 }
 
 
@@ -493,41 +759,87 @@ td:nth-child(6) {
 
 .modal-overlay {
     position: fixed;
+
     inset: 0;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     padding: 20px;
-    background: rgba(0, 0, 0, 0.35);
+
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
+
     z-index: 1000;
 }
 
 .modal {
     width: 420px;
-    max-width: calc(100vw - 30px);
-    max-height: calc(100vh - 40px);
+
+    max-width:
+        calc(100vw - 30px);
+
+    max-height:
+        calc(100vh - 40px);
+
     overflow-y: auto;
+
     background: #ffffff;
-    border-radius: 11px;
-    padding: 27px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+
+    border-radius: 14px;
+
+    padding: 28px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(15, 23, 42, 0.22);
 }
 
 .modal h2 {
     margin: 0 0 11px;
+
     font-size: 21px;
 }
 
 .modal p {
     color: #6b7280;
+
     font-size: 14px;
+
     line-height: 1.5;
+}
+
+.server-settings-modal label {
+    display: block;
+
+    margin-top: 20px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.server-settings-modal input {
+    width: 100%;
+
+    margin-top: 6px;
+    padding: 10px 11px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+
+    font: inherit;
 }
 
 .modal-actions {
     display: flex;
+
     justify-content: flex-end;
+
     gap: 9px;
+
     margin-top: 20px;
 }
 
@@ -543,13 +855,17 @@ td:nth-child(6) {
 
 .edit-modal {
     width: 520px;
+
     max-width: 90vw;
 }
 
 .edit-modal label {
     display: block;
+
     margin-bottom: 14px;
+
     font-size: 12px;
+
     font-weight: 700;
 }
 
@@ -559,8 +875,209 @@ td:nth-child(6) {
 }
 
 .edit-modal textarea {
-    min-height: 90px;
     resize: vertical;
+
+    min-height: 100px;
+}
+
+
+/* =========================================================
+   LEGEND MODAL
+========================================================= */
+
+.legend-modal {
+    width: 900px;
+
+    max-width: 95vw;
+
+    max-height: 90vh;
+
+    padding: 0;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.legend-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+    padding: 24px 26px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.legend-header h2 {
+    margin: 0 0 5px;
+}
+
+.legend-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.legend-close-button {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 7px;
+
+    background: #e9edf2;
+
+    color: #374151;
+
+    font-size: 24px;
+
+    line-height: 1;
+}
+
+.legend-close-button:hover {
+    background: #dce2e8;
+}
+
+.legend-table-container {
+    flex: 1;
+
+    overflow: auto;
+}
+
+.legend-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: auto;
+}
+
+.legend-table th {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1;
+
+    background: #f7f8fa;
+}
+
+.legend-table th,
+.legend-table td {
+    padding: 13px 15px;
+
+    border-bottom:
+        1px solid #edf0f2;
+
+    vertical-align: top;
+}
+
+.legend-table th:nth-child(1),
+.legend-table td:nth-child(1) {
+    width: 18%;
+}
+
+.legend-table th:nth-child(2),
+.legend-table td:nth-child(2) {
+    width: 22%;
+}
+
+.legend-table th:nth-child(3),
+.legend-table td:nth-child(3) {
+    width: 42%;
+}
+
+.legend-table th:nth-child(4),
+.legend-table td:nth-child(4) {
+    width: 18%;
+}
+
+.legend-description {
+    white-space: normal;
+
+    line-height: 1.45;
+
+    color: #4b5563;
+}
+
+.legend-actions {
+    display: flex;
+
+    gap: 6px;
+
+    white-space: nowrap;
+}
+
+.legend-footer {
+    padding: 16px 20px;
+
+    border-top: 1px solid #e5e7eb;
+
+    background: #ffffff;
+}
+
+.legend-add-button {
+    width: 100%;
+}
+
+.legend-loading,
+.legend-empty {
+    min-height: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    color: #6b7280;
+
+    text-align: center;
+}
+
+.legend-empty strong {
+    color: #374151;
+}
+
+.legend-editor-modal {
+    width: 520px;
+
+    max-width: 90vw;
+}
+
+.legend-editor-modal label {
+    display: block;
+
+    margin-bottom: 15px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.legend-editor-modal input,
+.legend-editor-modal textarea {
+    margin-top: 6px;
+}
+
+.legend-description-input {
+    min-height: 120px;
+
+    resize: vertical;
+
+    line-height: 1.45;
 }
 
 
@@ -570,19 +1087,230 @@ td:nth-child(6) {
 
 .credits-modal {
     width: 400px;
+
     text-align: center;
 }
 
 .credits-title {
     font-size: 17px !important;
+
     font-weight: 700;
+
     color: #1f2937 !important;
 }
 
 .credits-version {
     margin-top: 20px;
+
     font-size: 12px !important;
+
     color: #9ca3af !important;
+}
+
+
+/* =========================================================
+   EASTER EGG MODALS
+========================================================= */
+
+.no-hole-modal,
+.mom-modal,
+.video-modal {
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    max-width: 90vw;
+
+    max-height: 90vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 16px;
+
+    overflow: hidden;
+}
+
+.no-hole-image {
+    display: block;
+
+    max-width: 80vw;
+
+    max-height: 75vh;
+
+    width: auto;
+
+    height: auto;
+
+    object-fit: contain;
+}
+
+.easter-egg-video {
+    display: block;
+
+    width:
+        min(80vw, 1000px);
+
+    max-width: 100%;
+
+    max-height: 75vh;
+
+    height: auto;
+
+    object-fit: contain;
+
+    background: #000000;
+
+    border-radius: 10px;
+}
+
+.mom-image {
+    display: block;
+
+    width: auto;
+
+    height: auto;
+
+    max-width: 80vw;
+
+    max-height: 75vh;
+
+    object-fit: contain;
+}
+
+
+/* =========================================================
+   MATT MEMORIAL
+========================================================= */
+
+.matt-memorial-overlay {
+    overflow-y: auto;
+
+    padding: 40px 20px;
+
+    align-items: flex-start;
+}
+
+.matt-memorial-modal {
+    width:
+        min(900px, 95vw);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.35);
+
+    text-align: center;
+}
+
+.matt-memorial-modal h2 {
+    margin: 0;
+
+    font-size: 32px;
+
+    line-height: 1.2;
+}
+
+.matt-memorial-date {
+    margin: 8px 0 25px;
+
+    font-size: 16px;
+
+    color: #666666;
+}
+
+.matt-greatest-image {
+    display: block;
+
+    width: 100%;
+
+    max-width: 850px;
+
+    max-height: 650px;
+
+    height: auto;
+
+    object-fit: contain;
+
+    margin: 0 auto 30px;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.2);
+}
+
+.matt-photo-gallery {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 25px;
+}
+
+.matt-memory-image {
+    display: block;
+
+    width: auto;
+
+    max-width: 100%;
+
+    max-height: 600px;
+
+    height: auto;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.2);
+}
+
+.matt-family-image {
+    display: block;
+
+    width: 100%;
+
+    max-width: 850px;
+
+    max-height: 900px;
+
+    height: auto;
+
+    object-fit: contain;
+
+    margin: 40px auto 0;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.2);
+}
+
+.matt-memorial-modal > .secondary-button {
+    margin-top: 30px;
 }
 
 
@@ -608,13 +1336,8 @@ td:nth-child(6) {
         font-size: 24px;
     }
 
-    .content {
-        grid-template-columns: minmax(0, 1fr) 275px;
-        gap: 15px;
-    }
-
     .controls {
-        grid-template-columns: minmax(220px, 1fr) 170px 150px auto;
+        grid-template-columns: minmax(220px, 1fr) 165px 145px auto;
     }
 
     th,
@@ -623,15 +1346,17 @@ td:nth-child(6) {
         padding-right: 7px;
     }
 
-    td:nth-child(6) {
-        font-size: 11px;
+    .date-cell {
+        font-size: 10px;
     }
 
     .small-button,
     .danger-button {
         padding: 6px 7px;
-        font-size: 11px;
+
+        font-size: 10px;
     }
+
 }
 
 
@@ -641,17 +1366,18 @@ td:nth-child(6) {
 
 @media (max-width: 950px) {
 
-    .content {
-        grid-template-columns: 1fr;
-    }
-
-    .add-panel {
-        order: -1;
-    }
-
     .controls {
-        grid-template-columns: minmax(200px, 1fr) 160px 145px auto;
+        grid-template-columns: minmax(200px, 1fr) 155px 140px auto;
     }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 1050px;
+    }
+
 }
 
 
@@ -663,7 +1389,9 @@ td:nth-child(6) {
 
     .header {
         min-height: auto;
+
         flex-wrap: wrap;
+
         gap: 12px;
     }
 
@@ -679,10 +1407,13 @@ td:nth-child(6) {
         white-space: normal;
     }
 
-    .credits-button {
-        position: absolute;
-        top: 16px;
-        right: 18px;
+    .header-buttons {
+        width: 100%;
+    }
+
+    .credits-button,
+    .legend-button {
+        flex: 1;
     }
 
     .company-logo {
@@ -693,8 +1424,13 @@ td:nth-child(6) {
         grid-template-columns: 1fr;
     }
 
+    .control-buttons {
+        width: 100%;
+    }
+
     .controls select,
-    .secondary-button {
+    .secondary-button,
+    .add-control-button {
         width: 100%;
     }
 
@@ -703,187 +1439,16 @@ td:nth-child(6) {
     }
 
     table {
-        min-width: 850px;
+        min-width: 1050px;
     }
-}
 
+    .legend-modal {
+        max-width: 100%;
+    }
 
-/* =========================================================
-   EASTER EGG MODALS
-========================================================= */
-
-.no-hole-modal,
-.mom-modal,
-.video-modal {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-.no-hole-image {
-    display: block;
-    max-width: 80vw;
-    max-height: 75vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-.easter-egg-video {
-    display: block;
-    width: min(80vw, 1000px);
-    max-width: 100%;
-    max-height: 75vh;
-    height: auto;
-    object-fit: contain;
-    background: #000000;
-    border-radius: 10px;
-}
-
-
-/* =========================================================
-   MOM EASTER EGG
-========================================================= */
-
-.mom-modal {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
-    max-width: 90vw;
-    max-height: 90vh;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    overflow: hidden;
-}
-
-.mom-image {
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: 80vw;
-    max-height: 75vh;
-    object-fit: contain;
-}
-
-
-/* ==========================================================================
-   MATT MEMORIAL
-   ========================================================================== */
-
-.matt-memorial-overlay {
-    overflow-y: auto;
-    padding: 40px 20px;
-    align-items: flex-start;
-}
-
-.matt-memorial-modal {
-    width: min(900px, 95vw);
-    max-height: 90vh;
-    overflow-y: auto;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 35px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-    text-align: center;
-}
-
-.matt-memorial-modal h2 {
-    margin: 0;
-    font-size: 32px;
-    line-height: 1.2;
-}
-
-.matt-memorial-date {
-    margin: 8px 0 25px;
-    font-size: 16px;
-    color: #666666;
-}
-
-
-/* --------------------------------------------------------------------------
-   GREATEST PERSON EVER
--------------------------------------------------------------------------- */
-
-.matt-greatest-image {
-    display: block;
-    width: 100%;
-    max-width: 850px;
-    max-height: 650px;
-    height: auto;
-    object-fit: contain;
-    margin: 0 auto 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-
-/* --------------------------------------------------------------------------
-   MEMORY PHOTO GALLERY
--------------------------------------------------------------------------- */
-
-.matt-photo-gallery {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
-}
-
-.matt-memory-image {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: 600px;
-    height: auto;
-    object-fit: contain;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-
-/* --------------------------------------------------------------------------
-   FINAL FAMILY PHOTO
--------------------------------------------------------------------------- */
-
-.matt-family-image {
-    display: block;
-    width: 100%;
-    max-width: 850px;
-    max-height: 900px;
-    height: auto;
-    object-fit: contain;
-    margin: 40px auto 0;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-
-/* --------------------------------------------------------------------------
-   MATT CLOSE BUTTON
--------------------------------------------------------------------------- */
-
-.matt-memorial-modal > .secondary-button {
-    margin-top: 30px;
-}
-
-
-/* --------------------------------------------------------------------------
-   MATT MEMORIAL - SMALL WINDOWS
--------------------------------------------------------------------------- */
-
-@media (max-width: 750px) {
+    .legend-table {
+        min-width: 700px;
+    }
 
     .matt-memorial-overlay {
         padding: 20px 10px;
@@ -891,8 +1456,11 @@ td:nth-child(6) {
 
     .matt-memorial-modal {
         width: 100%;
+
         max-width: 100%;
+
         padding: 22px 15px;
+
         border-radius: 10px;
     }
 
@@ -902,12 +1470,15 @@ td:nth-child(6) {
 
     .matt-memorial-date {
         font-size: 14px;
+
         margin-bottom: 20px;
     }
 
     .matt-greatest-image {
         max-width: 100%;
+
         max-height: 500px;
+
         margin-bottom: 25px;
     }
 
@@ -917,12 +1488,16 @@ td:nth-child(6) {
 
     .matt-memory-image {
         max-width: 100%;
+
         max-height: 500px;
     }
 
     .matt-family-image {
         max-width: 100%;
+
         max-height: 650px;
+
         margin-top: 30px;
     }
+
 }
