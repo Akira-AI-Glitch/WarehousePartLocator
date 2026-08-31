@@ -1895,7 +1895,7 @@ function App() {
             </p>
 
             <p className="credits-version">
-              Version 1.0.4
+              Version 1.0.5
             </p>
 
             <div className="modal-actions">

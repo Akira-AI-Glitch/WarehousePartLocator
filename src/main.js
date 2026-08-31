@@ -89,7 +89,7 @@ if (!app.isPackaged) {
     },
 
     updateInterval:
-      "1 minute",
+      "5 minutes",
 
     notifyUser:
       true,
